@@ -1407,7 +1407,7 @@ Windows Registry Editor Version 5.00
 [HKEY_CURRENT_USER\Software\Microsoft\Lighting]
 "AmbientLightingEnabled"=dword:00000000
 
-; disable compatible apps in the forground always control lighting 
+; disable compatible apps in the foreground always control lighting 
 [HKEY_CURRENT_USER\Software\Microsoft\Lighting]
 "ControlledByForegroundApp"=dword:00000000
 
@@ -2985,7 +2985,7 @@ $nipfile = @'
 <ArrayOfProfile>
   <Profile>
     <ProfileName>Base Profile</ProfileName>
-    <Executeables />
+    <Executables/>
     <Settings>
       <ProfileSetting>
         <SettingNameInfo>Frame Rate Limiter V3</SettingNameInfo>
