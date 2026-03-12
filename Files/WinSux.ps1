@@ -45,6 +45,9 @@
         }
         }
 
+        Write-Host "FR3" -ForegroundColor White -NoNewline; Write-Host "3THY" -ForegroundColor Cyan
+        Write-Host "https://www.youtube.com/fr33thy`n"
+
         Write-Host "7Z`n"
         ## explorer "https://www.7-zip.org"
 
@@ -2821,7 +2824,7 @@ New-Item -Path "$env:AppData\Microsoft\Windows\Start Menu\Programs\Startup" -Ite
 New-Item -Path "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp" -ItemType Directory -ErrorAction SilentlyContinue | Out-Null
 
         # FUNCTION SHOW-MENU
-        function show-menu {
+        function Show-Menu {
         Clear-Host
         Write-Host "INSTALL GRAPHICS DRIVERS" -ForegroundColor Yellow
         Write-Host "SELECT YOUR SYSTEM'S GPU`n" -ForegroundColor Yellow
@@ -2831,7 +2834,7 @@ New-Item -Path "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp" 
         Write-Host " 4.  SKIP`n"
         }
         :MainLoop while ($true) {
-        show-menu
+        Show-Menu
         $choice = Read-Host " "
         if ($choice -match '^[1-4]$') {
         switch ($choice) {
@@ -3561,7 +3564,7 @@ cmd /c "reg add `"$regPath`" /v `"Global_LowLatency`" /t REG_DWORD /d `"0`" /f >
           } else {
           Write-Host "Invalid input. Please select a valid option (1-4).`n" -ForegroundColor Yellow
           Pause
-          show-menu
+          Show-Menu
           }
           }
 
