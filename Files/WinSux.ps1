@@ -209,15 +209,30 @@ $StepOnePs1 = @'
 
         # FUNCTION RUN AS TRUSTED INSTALLER
         function Run-Trusted([String]$command) {
-        Stop-Service -Name TrustedInstaller -Force -ErrorAction SilentlyContinue
-        $service = Get-WmiObject -Class Win32_Service -Filter "Name='TrustedInstaller'"
+        try {
+    	Stop-Service -Name TrustedInstaller -Force -ErrorAction Stop -WarningAction Stop
+  		}
+  		catch {
+    	taskkill /im trustedinstaller.exe /f >$null
+  		}
+        $service = Get-CimInstance -ClassName Win32_Service -Filter "Name='TrustedInstaller'"
         $DefaultBinPath = $service.PathName
+		#make sure path is valid and the correct location
+  		$trustedInstallerPath = "$env:SystemRoot\servicing\TrustedInstaller.exe"
+  		if ($DefaultBinPath -ne $trustedInstallerPath) {
+    	$DefaultBinPath = $trustedInstallerPath
+  		}
         $bytes = [System.Text.Encoding]::Unicode.GetBytes($command)
         $base64Command = [Convert]::ToBase64String($bytes)
         sc.exe config TrustedInstaller binPath= "cmd.exe /c powershell.exe -encodedcommand $base64Command" | Out-Null
         sc.exe start TrustedInstaller | Out-Null
         sc.exe config TrustedInstaller binpath= "`"$DefaultBinPath`"" | Out-Null
-        Stop-Service -Name TrustedInstaller -Force -ErrorAction SilentlyContinue
+        try {
+    	Stop-Service -Name TrustedInstaller -Force -ErrorAction Stop -WarningAction Stop
+  		}
+  		catch {
+    	taskkill /im trustedinstaller.exe /f >$null
+  		}
         }
 	
 	    # REMOVE WINLOGON STEPONE PS1 FILE
@@ -382,15 +397,30 @@ $StepTwoPs1 = @'
 
         # FUNCTION RUN AS TRUSTED INSTALLER
         function Run-Trusted([String]$command) {
-        Stop-Service -Name TrustedInstaller -Force -ErrorAction SilentlyContinue
-        $service = Get-WmiObject -Class Win32_Service -Filter "Name='TrustedInstaller'"
+        try {
+    	Stop-Service -Name TrustedInstaller -Force -ErrorAction Stop -WarningAction Stop
+  		}
+  		catch {
+    	taskkill /im trustedinstaller.exe /f >$null
+  		}
+        $service = Get-CimInstance -ClassName Win32_Service -Filter "Name='TrustedInstaller'"
         $DefaultBinPath = $service.PathName
+		#make sure path is valid and the correct location
+  		$trustedInstallerPath = "$env:SystemRoot\servicing\TrustedInstaller.exe"
+  		if ($DefaultBinPath -ne $trustedInstallerPath) {
+    	$DefaultBinPath = $trustedInstallerPath
+  		}
         $bytes = [System.Text.Encoding]::Unicode.GetBytes($command)
         $base64Command = [Convert]::ToBase64String($bytes)
         sc.exe config TrustedInstaller binPath= "cmd.exe /c powershell.exe -encodedcommand $base64Command" | Out-Null
         sc.exe start TrustedInstaller | Out-Null
         sc.exe config TrustedInstaller binpath= "`"$DefaultBinPath`"" | Out-Null
-        Stop-Service -Name TrustedInstaller -Force -ErrorAction SilentlyContinue
+        try {
+    	Stop-Service -Name TrustedInstaller -Force -ErrorAction Stop -WarningAction Stop
+  		}
+  		catch {
+    	taskkill /im trustedinstaller.exe /f >$null
+  		}
         }
 	
 		# FUNCTION MODERN FILE PICKER
