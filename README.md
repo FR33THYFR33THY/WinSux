@@ -17,9 +17,9 @@ iwr https://github.com/FR33THYFR33THY/WinSux-Windows-Optimization-Guide/raw/refs
 [![Video](https://img.youtube.com/vi/JJvW9e4X7k0/maxresdefault.jpg)]([https://youtu.be/JJvW9e4X7k0](https://youtu.be/JJvW9e4X7k0))
 
 # Patch Notes
-- 3/13/2025 Fixed compatibility issues with Windows LTSC/IoT 2021/2024
-- 3/14/2025 Removed disable ulps (causes performance issues with HAGS on 7000/9000 series AMD cards)
-- 3/14/2025 Fixed create recycle bin shortcut icon
-- 3/14/2025 Added updated function run as trusted installer
-- 3/14/2025 Added processor performance core parking unhide/min/max cores 100%
-- 3/14/2025 Fixed compatibility issues with Windows Server 2022/2025
+- 3/13/2026 Fixed compatibility issues with Windows LTSC/IoT 2021/2024
+- 3/14/2026 Removed disable ulps (causes performance issues with HAGS on 7000/9000 series AMD cards)
+- 3/14/2026 Fixed create recycle bin shortcut icon
+- 3/14/2026 Added updated function run as trusted installer
+- 3/14/2026 Added processor performance core parking unhide/min/max cores 100%
+- 3/14/2026 Fixed compatibility issues with Windows Server 2022/2025
