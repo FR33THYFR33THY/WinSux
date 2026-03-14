@@ -17,4 +17,5 @@ iwr https://github.com/FR33THYFR33THY/WinSux-Windows-Optimization-Guide/raw/refs
 [![Video](https://img.youtube.com/vi/JJvW9e4X7k0/maxresdefault.jpg)]([https://youtu.be/JJvW9e4X7k0](https://youtu.be/JJvW9e4X7k0))
 
 # Patch Notes
+- 3/13/2025 10:30AM Fixed compatibility issue with LTSC/IOT 2021/2024
 - 3/14/2025 11:55AM Removed disable ulps (causes performance issues with HAGS on 9000 series AMD cards)
