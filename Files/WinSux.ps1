@@ -2889,6 +2889,13 @@ Start-Process "msiexec.exe" -ArgumentList "/x $guid /qn /norestart" -Wait -NoNew
 cmd /c "reg delete `"HKLM\SYSTEM\ControlSet001\Services\uhssvc`" /f >nul 2>&1"
 Unregister-ScheduledTask -TaskName PLUGScheduler -Confirm:$false -ErrorAction SilentlyContinue | Out-Null
 
+# uninstall voice clarity driver
+$device = Get-PnpDevice | Where-Object { $_.FriendlyName -like "*Voice Clarity*" }
+if ($device) {
+$device | Disable-PnpDevice -Confirm:$false -ErrorAction SilentlyContinue | Out-Null
+pnputil /remove-device $device.InstanceId 2>$null | Out-Null
+}
+
 # remove startup apps
         ## taskmgr /0 /startup
         ## ms-settings:startupapps
