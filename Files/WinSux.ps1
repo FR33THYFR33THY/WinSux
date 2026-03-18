@@ -169,7 +169,13 @@ cmd /c "reg add `"HKLM\SOFTWARE\Policies\Google\Chrome`" /v `"BackgroundModeEnab
 cmd /c "reg add `"HKLM\SOFTWARE\Policies\Google\Chrome`" /v `"HighEfficiencyModeEnabled`" /t REG_DWORD /d `"1`" /f >nul 2>&1"
 
 # remove logon chrome
-cmd /c "reg delete `"HKLM\Software\Microsoft\Active Setup\Installed Components\{8A69D345-D564-463c-AFF1-A69D9E530F96}`" /f >nul 2>&1"
+$basePath = "HKLM:\Software\Microsoft\Active Setup\Installed Components"
+Get-ChildItem $basePath | ForEach-Object {
+$val = (Get-ItemProperty $_.PsPath)."(default)"
+if ($val -like "*Chrome*") {
+Remove-Item $_.PsPath -Force -ErrorAction SilentlyContinue
+}
+}
 
 # remove chrome services
 $services = Get-Service | Where-Object { $_.Name -match 'Google' }
