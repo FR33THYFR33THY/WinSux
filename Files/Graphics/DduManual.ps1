@@ -45,8 +45,6 @@
         }
         }
 
-        Write-Host "youtube.com/FR3" -ForegroundColor White -NoNewline; Write-Host "3THY`n" -ForegroundColor Cyan
-
         Write-Host "7Z`n"
         ## explorer "https://www.7-zip.org"
 
@@ -124,6 +122,9 @@ cmd /c "reg add `"HKLM\Software\Microsoft\Windows\CurrentVersion\DriverSearching
 $DDU = @'
 	    # REMOVE WINLOGON STEPONE PS1 FILE
         cmd /c "reg add `"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon`" /v `"Userinit`" /t REG_SZ /d `"C:\WINDOWS\system32\userinit.exe,`" /f >nul 2>&1"
+
+# start explorer
+Start-Process explorer
 
 # remove safe mode boot
 cmd /c "bcdedit /deletevalue {current} safeboot >nul 2>&1"

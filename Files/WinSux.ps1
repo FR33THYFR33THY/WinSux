@@ -169,7 +169,13 @@ cmd /c "reg add `"HKLM\SOFTWARE\Policies\Google\Chrome`" /v `"BackgroundModeEnab
 cmd /c "reg add `"HKLM\SOFTWARE\Policies\Google\Chrome`" /v `"HighEfficiencyModeEnabled`" /t REG_DWORD /d `"1`" /f >nul 2>&1"
 
 # remove logon chrome
-cmd /c "reg delete `"HKLM\Software\Microsoft\Active Setup\Installed Components\{8A69D345-D564-463c-AFF1-A69D9E530F96}`" /f >nul 2>&1"
+$basePath = "HKLM:\Software\Microsoft\Active Setup\Installed Components"
+Get-ChildItem $basePath | ForEach-Object {
+$val = (Get-ItemProperty $_.PsPath)."(default)"
+if ($val -like "*Chrome*") {
+Remove-Item $_.PsPath -Force -ErrorAction SilentlyContinue
+}
+}
 
 # remove chrome services
 $services = Get-Service | Where-Object { $_.Name -match 'Google' }
@@ -179,9 +185,7 @@ cmd /c "sc delete `"$($service.Name)`" >nul 2>&1"
 }
 
 # remove chrome scheduled tasks
-Get-ScheduledTask | Where-Object {$_.Taskname -match 'GoogleUpdateTaskMachineCore'} | Unregister-ScheduledTask -Confirm:$false
-Get-ScheduledTask | Where-Object {$_.Taskname -match 'GoogleUpdateTaskMachineUA'} | Unregister-ScheduledTask -Confirm:$false
-Get-ScheduledTask | Where-Object {$_.Taskname -match 'GoogleUpdaterTaskSystem'} | Unregister-ScheduledTask -Confirm:$false
+Get-ScheduledTask | Where-Object { $_.TaskName -like '*Google*' } | Unregister-ScheduledTask -Confirm:$false -ErrorAction SilentlyContinue
 
         Write-Host "DIRECT X`n"
         ## explorer "https://www.microsoft.com/en-au/download/details.aspx?id=35"
@@ -209,17 +213,31 @@ $StepOnePs1 = @'
 
         # FUNCTION RUN AS TRUSTED INSTALLER
         function Run-Trusted([String]$command) {
-        Stop-Service -Name TrustedInstaller -Force -ErrorAction SilentlyContinue
-        $service = Get-WmiObject -Class Win32_Service -Filter "Name='TrustedInstaller'"
+        try {
+    	Stop-Service -Name TrustedInstaller -Force -ErrorAction Stop -WarningAction Stop
+  		}
+  		catch {
+    	taskkill /im trustedinstaller.exe /f >$null
+  		}
+        $service = Get-CimInstance -ClassName Win32_Service -Filter "Name='TrustedInstaller'"
         $DefaultBinPath = $service.PathName
+  		$trustedInstallerPath = "$env:SystemRoot\servicing\TrustedInstaller.exe"
+  		if ($DefaultBinPath -ne $trustedInstallerPath) {
+    	$DefaultBinPath = $trustedInstallerPath
+  		}
         $bytes = [System.Text.Encoding]::Unicode.GetBytes($command)
         $base64Command = [Convert]::ToBase64String($bytes)
         sc.exe config TrustedInstaller binPath= "cmd.exe /c powershell.exe -encodedcommand $base64Command" | Out-Null
         sc.exe start TrustedInstaller | Out-Null
         sc.exe config TrustedInstaller binpath= "`"$DefaultBinPath`"" | Out-Null
-        Stop-Service -Name TrustedInstaller -Force -ErrorAction SilentlyContinue
+        try {
+    	Stop-Service -Name TrustedInstaller -Force -ErrorAction Stop -WarningAction Stop
+  		}
+  		catch {
+    	taskkill /im trustedinstaller.exe /f >$null
+  		}
         }
-	
+
 	    # REMOVE WINLOGON STEPONE PS1 FILE
         cmd /c "reg add `"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon`" /v `"Userinit`" /t REG_SZ /d `"C:\WINDOWS\system32\userinit.exe,`" /f >nul 2>&1"
 
@@ -232,6 +250,9 @@ $StepOnePs1 = @'
 		## windowsdefender://smartscreenpua
 		## windowsdefender://exploitprotection
 		## windowsdefender://coreisolation
+
+# start explorer
+Start-Process explorer
 
 $windowssecuritysettings = @(
 # virus & threat protection - manage settings
@@ -382,17 +403,31 @@ $StepTwoPs1 = @'
 
         # FUNCTION RUN AS TRUSTED INSTALLER
         function Run-Trusted([String]$command) {
-        Stop-Service -Name TrustedInstaller -Force -ErrorAction SilentlyContinue
-        $service = Get-WmiObject -Class Win32_Service -Filter "Name='TrustedInstaller'"
+        try {
+    	Stop-Service -Name TrustedInstaller -Force -ErrorAction Stop -WarningAction Stop
+  		}
+  		catch {
+    	taskkill /im trustedinstaller.exe /f >$null
+  		}
+        $service = Get-CimInstance -ClassName Win32_Service -Filter "Name='TrustedInstaller'"
         $DefaultBinPath = $service.PathName
+  		$trustedInstallerPath = "$env:SystemRoot\servicing\TrustedInstaller.exe"
+  		if ($DefaultBinPath -ne $trustedInstallerPath) {
+    	$DefaultBinPath = $trustedInstallerPath
+  		}
         $bytes = [System.Text.Encoding]::Unicode.GetBytes($command)
         $base64Command = [Convert]::ToBase64String($bytes)
         sc.exe config TrustedInstaller binPath= "cmd.exe /c powershell.exe -encodedcommand $base64Command" | Out-Null
         sc.exe start TrustedInstaller | Out-Null
         sc.exe config TrustedInstaller binpath= "`"$DefaultBinPath`"" | Out-Null
-        Stop-Service -Name TrustedInstaller -Force -ErrorAction SilentlyContinue
+        try {
+    	Stop-Service -Name TrustedInstaller -Force -ErrorAction Stop -WarningAction Stop
+  		}
+  		catch {
+    	taskkill /im trustedinstaller.exe /f >$null
+  		}
         }
-	
+
 		# FUNCTION MODERN FILE PICKER
     	function Show-ModernFilePicker {
     	param(
@@ -804,7 +839,7 @@ Windows Registry Editor Version 5.00
 [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\VisualEffects]
 "VisualFXSetting"=dword:3
 
-; disable animate controls and elements inside windows
+; enable animate controls and elements inside windows (disabled breaks instagram scrolling)
 ; disable fade or slide menus into view
 ; disable fade or slide tooltips into view
 ; disable fade out menu items after clicking
@@ -813,7 +848,7 @@ Windows Registry Editor Version 5.00
 ; disable slide open combo boxes
 ; disable smooth-scroll list boxes
 [HKEY_CURRENT_USER\Control Panel\Desktop]
-"UserPreferencesMask"=hex(2):90,12,03,80,10,00,00,00
+"UserPreferencesMask"=hex(2):90,12,03,80,12,00,00,00
 
 ; disable animate windows when minimizing and maximizing
 [HKEY_CURRENT_USER\Control Panel\Desktop\WindowMetrics]
@@ -1721,32 +1756,6 @@ E0,F6,C5,D5,0E,CA,50,00,00
 
 
 
-; EDGE
-[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge]
-"StartupBoostEnabled"=dword:00000000
-"HardwareAccelerationModeEnabled"=dword:00000000
-"BackgroundModeEnabled"=dword:00000000
-
-[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\MicrosoftEdgeElevationService]
-"Start"=dword:00000004
-
-[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\edgeupdate]
-"Start"=dword:00000004
-
-[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\edgeupdatem]
-"Start"=dword:00000004
-
-
-
-
-; NVIDIA
-; disable nvidia tray icon
-[HKEY_CURRENT_USER\Software\NVIDIA Corporation\NvTray]
-"StartOnLogin"=dword:00000000
-
-
-
-
 ; --CAN'T DO NATIVELY--
 
 
@@ -1849,64 +1858,10 @@ E0,F6,C5,D5,0E,CA,50,00,00
 
 
 
-; NVIDIA
-; enable old nvidia legacy sharpening
-; old location
-[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\nvlddmkm\FTS]
-"EnableGR535"=dword:00000000
-
-; new location
-[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\nvlddmkm\Parameters\FTS]
-"EnableGR535"=dword:00000000
-
-[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\nvlddmkm\Parameters\FTS]
-"EnableGR535"=dword:00000000
-
-
-
-
 ; POWER
-; enable global timer resolution requests
-[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\kernel]
-"GlobalTimerResolutionRequests"=dword:00000001
-
-; unpark cpu cores
-[HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Control\Power\PowerSettings\54533251-82be-4824-96c1-47b60b740d00\0cc5b647-c1df-4637-891a-dec35c318583]
-"ValueMax"=dword:00000064
-
-; disable power throttling
-[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling]
-"PowerThrottlingOff"=dword:00000001
-
-; disable hibernate
-[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Power]
-"HibernateEnabled"=dword:00000000
-"HibernateEnabledDefault"=dword:00000000
-
-; disable fast boot
-[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Power]
-"HiberbootEnabled"=dword:00000000
-
-; enable allow usb overclock with secure boot regedit
-[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\CI\Policy]
-"WHQLSettings"=dword:00000001
-
 ; unlock background polling rate cap
 [HKEY_CURRENT_USER\Control Panel\Mouse]
 "RawMouseThrottleEnabled"=dword:00000000
-
-; enable new nvme driver
-[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Policies\Microsoft\FeatureManagement\Overrides]
-"735209102"=dword:00000001
-"1853569164"=dword:00000001
-"156965516"=dword:00000001
-
-; enable safe & safe network boot fix for new nvme driver
-[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SafeBoot\Network\{75416E63-5912-4DFA-AE8F-3EFACCAFFB14}]
-@="Storage disks"
-
-[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SafeBoot\Minimal\{75416E63-5912-4DFA-AE8F-3EFACCAFFB14}]
-@="Storage disks"
 
 
 
@@ -2213,6 +2168,22 @@ cmd /c "reg add `"$regPath`" /v `"*ModernStandbyWoLMagicPacket`" /t REG_SZ /d `"
 }
 }
 
+# disable acpi power savings on all connected devices
+$usbKeys = Get-ChildItem -Path "HKLM:\SYSTEM\ControlSet001\Enum\ACPI" -Recurse -ErrorAction SilentlyContinue |
+Where-Object { $_.PSChildName -eq "Device Parameters" }
+foreach ($key in $usbKeys) {
+$regPath = $key.Name
+cmd /c "reg add `"$regPath`" /v `"EnhancedPowerManagementEnabled`" /t REG_DWORD /d `"0`" /f >nul 2>&1"
+cmd /c "reg add `"$regPath`" /v `"SelectiveSuspendEnabled`" /t REG_BINARY /d `"00`" /f >nul 2>&1"
+cmd /c "reg add `"$regPath`" /v `"SelectiveSuspendOn`" /t REG_DWORD /d `"0`" /f >nul 2>&1"
+}
+$usbKeys = Get-ChildItem -Path "HKLM:\SYSTEM\ControlSet001\Enum\ACPI" -Recurse -ErrorAction SilentlyContinue |
+Where-Object { $_.PSChildName -eq "WDF" }
+foreach ($key in $usbKeys) {
+$regPath = $key.Name
+cmd /c "reg add `"$regPath`" /v `"IdleInWorkingState`" /t REG_DWORD /d `"0`" /f >nul 2>&1"
+}
+
 # disable hid power savings on all connected devices
 $usbKeys = Get-ChildItem -Path "HKLM:\SYSTEM\ControlSet001\Enum\HID" -Recurse -ErrorAction SilentlyContinue |
 Where-Object { $_.PSChildName -eq "Device Parameters" }
@@ -2261,6 +2232,14 @@ $regPath = $key.Name
 cmd /c "reg add `"$regPath`" /v `"IdleInWorkingState`" /t REG_DWORD /d `"0`" /f >nul 2>&1"
 }
 
+# disable acpi wake on all connected devices
+$usbKeys = Get-ChildItem -Path "HKLM:\SYSTEM\ControlSet001\Enum\ACPI" -Recurse -ErrorAction SilentlyContinue |
+Where-Object { $_.PSChildName -eq "Device Parameters" }
+foreach ($key in $usbKeys) {
+$regPath = $key.Name
+cmd /c "reg add `"$regPath`" /v `"WaitWakeEnabled`" /t REG_DWORD /d `"0`" /f >nul 2>&1"
+}
+
 # disable hid wake on all connected devices
 $usbKeys = Get-ChildItem -Path "HKLM:\SYSTEM\ControlSet001\Enum\HID" -Recurse -ErrorAction SilentlyContinue |
 Where-Object { $_.PSChildName -eq "Device Parameters" }
@@ -2283,6 +2262,20 @@ Where-Object { $_.PSChildName -eq "Device Parameters" }
 foreach ($key in $usbKeys) {
 $regPath = $key.Name
 cmd /c "reg add `"$regPath`" /v `"WaitWakeEnabled`" /t REG_DWORD /d `"0`" /f >nul 2>&1"
+}
+
+# turn off windows write-cache buffer flushing on the device on all connected scsi devices
+$basePath = "HKLM:\SYSTEM\ControlSet001\Enum\SCSI"
+Get-ChildItem -Path $basePath -Recurse -ErrorAction SilentlyContinue | Where-Object { $_.PSChildName -eq "Device Parameters" } | ForEach-Object {
+$diskPath = Join-Path $_.PSPath "Disk"
+cmd /c "reg add `"$(($diskPath -replace 'Microsoft.PowerShell.Core\\Registry::',''))`" /v `"CacheIsPowerProtected`" /t REG_DWORD /d `"1`" /f >nul 2>&1"
+}
+
+# turn off windows write-cache buffer flushing on the device on all connected nvme devices
+$basePath = "HKLM:\SYSTEM\ControlSet001\Enum\NVME"
+Get-ChildItem -Path $basePath -Recurse -ErrorAction SilentlyContinue | Where-Object { $_.PSChildName -eq "Device Parameters" } | ForEach-Object {
+$diskPath = Join-Path $_.PSPath "Disk"
+cmd /c "reg add `"$(($diskPath -replace 'Microsoft.PowerShell.Core\\Registry::',''))`" /v `"CacheIsPowerProtected`" /t REG_DWORD /d `"1`" /f >nul 2>&1"
 }
 
 # import notepad settings
@@ -2646,22 +2639,22 @@ cmd /c "sc delete `"$($service.Name)`" >nul 2>&1"
 }
 
 # windows 10 remove microsoft edge legacy package
-try {
 $EdgeLegacyPackage = (Get-ChildItem "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\Packages" -ErrorAction SilentlyContinue |
 Where-Object { $_.PSChildName -like "*Microsoft-Windows-Internet-Browser-Package*~~*" }).PSChildName
 if ($EdgeLegacyPackage) {
 $regPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\Packages\$EdgeLegacyPackage"
 cmd /c "reg add `"$($regPath.Replace('HKLM:\', 'HKLM\'))`" /v Visibility /t REG_DWORD /d 1 /f >nul 2>&1"
 cmd /c "reg delete `"$($regPath.Replace('HKLM:\', 'HKLM\'))\Owners`" /va /f >nul 2>&1"
-dism /online /Remove-Package /PackageName:$EdgeLegacyPackage /quiet /norestart
+dism /online /Remove-Package /PackageName:$EdgeLegacyPackage /quiet /norestart 2>$null | Out-Null
 }
-} catch { }
 
         Write-Host "REMOVE UWP APPS`n"
         ## ms-settings:appsfeatures
         ## powershell -noexit -command "get-appxpackage | select name | format-table -autosize"
 
 Get-AppXPackage -AllUsers | Where-Object {
+# breaks file explorer
+$_.Name -notlike '*CBS*' -and
 $_.Name -notlike '*Microsoft.AV1VideoExtension*' -and
 $_.Name -notlike '*Microsoft.AVCEncoderVideoExtension*' -and
 $_.Name -notlike '*Microsoft.HEIFImageExtension*' -and
@@ -2669,14 +2662,21 @@ $_.Name -notlike '*Microsoft.HEVCVideoExtension*' -and
 $_.Name -notlike '*Microsoft.MPEG2VideoExtension*' -and
 $_.Name -notlike '*Microsoft.Paint*' -and
 $_.Name -notlike '*Microsoft.RawImageExtension*' -and
+# breaks windows server defender
+$_.Name -notlike '*Microsoft.SecHealthUI*' -and
 $_.Name -notlike '*Microsoft.VP9VideoExtensions*' -and
 $_.Name -notlike '*Microsoft.WebMediaExtensions*' -and
 $_.Name -notlike '*Microsoft.WebpImageExtension*' -and
 $_.Name -notlike '*Microsoft.Windows.Photos*' -and
+# breaks windows server task bar
+$_.Name -notlike '*Microsoft.Windows.ShellExperienceHost*' -and
+# breaks windows server start menu
+$_.Name -notlike '*Microsoft.Windows.StartMenuExperienceHost*' -and
 $_.Name -notlike '*Microsoft.WindowsNotepad*' -and
 $_.Name -notlike '*Microsoft.WindowsStore*' -and
-$_.Name -notlike '*CBS*' -and
-$_.Name -notlike '*NVIDIACorp.NVIDIAControlPanel*'
+$_.Name -notlike '*NVIDIACorp.NVIDIAControlPanel*' -and
+# breaks windows server immersive control panel
+$_.Name -notlike '*windows.immersivecontrolpanel*'
 } | Remove-AppxPackage -ErrorAction SilentlyContinue
 
         Write-Host "REMOVE UWP FEATURES`n"
@@ -2694,6 +2694,7 @@ $_.Name -notlike '*Microsoft.Windows.Wifi*' -and
 $_.Name -notlike '*NetFX3*' -and
 # windows 11 breaks msi installers if removed
 $_.Name -notlike '*VBSCRIPT*' -and
+# breaks monitoring programs
 $_.Name -notlike '*WMIC*' -and
 # windows 10 breaks uwp snippingtool if removed
 $_.Name -notlike '*Windows.Client.ShellComponents*'
@@ -2708,11 +2709,30 @@ Remove-WindowsCapability -Online -Name $_.Name | Out-Null
 		## powershell -noexit -command "dism /online /get-features /format:table"
 
 Get-WindowsOptionalFeature -Online | Where-Object {
-$_.FeatureName -notlike '*NetFx3*' -and
-$_.FeatureName -notlike '*LegacyComponents*' -and
 $_.FeatureName -notlike '*DirectPlay*' -and
+$_.FeatureName -notlike '*LegacyComponents*' -and
+$_.FeatureName -notlike '*NetFx3*' -and
+# breaks windows server turn windows features on or off
+$_.FeatureName -notlike '*NetFx4*' -and
 $_.FeatureName -notlike '*NetFx4-AdvSrvs*' -and
-$_.FeatureName -notlike '*SearchEngine-Client-Package*'
+# breaks windows server turn windows features on or off
+$_.FeatureName -notlike '*NetFx4ServerFeatures*' -and
+# breaks search
+$_.FeatureName -notlike '*SearchEngine-Client-Package*' -and
+# breaks windows server desktop
+$_.FeatureName -notlike '*Server-Shell*' -and
+# breaks windows server defender
+$_.FeatureName -notlike '*Windows-Defender*' -and
+# breaks windows server internet
+$_.FeatureName -notlike '*Server-Drivers-General*' -and
+# breaks windows server internet
+$_.FeatureName -notlike '*ServerCore-Drivers-General*' -and
+# breaks windows server internet
+$_.FeatureName -notlike '*ServerCore-Drivers-General-WOW64*' -and
+# breaks windows server turn windows features on or off
+$_.FeatureName -notlike '*Server-Gui-Mgmt*' -and
+# breaks windows server nvidia app
+$_.FeatureName -notlike '*WirelessNetworking*'
 } | ForEach-Object {
 try {
 Disable-WindowsOptionalFeature -Online -FeatureName $_.FeatureName -NoRestart -WarningAction SilentlyContinue | Out-Null
@@ -2746,12 +2766,13 @@ Get-ScheduledTask | Where-Object {$_.Taskname -match 'OneDrive'} | Unregister-Sc
 
 # uninstall remote desktop connection
 try {
-Start-Process "mstsc" -ArgumentList "/Uninstall"
+Start-Process "mstsc" -ArgumentList "/Uninstall" -ErrorAction SilentlyContinue
 } catch { }
 # silent window for remote desktop connection
 $processExists = Get-Process -Name mstsc -ErrorAction SilentlyContinue
 if ($processExists) {
 $running = $true
+$timeout = 0
 do {
 $mstscProcess = Get-Process -Name mstsc -ErrorAction SilentlyContinue
 if ($mstscProcess -and $mstscProcess.MainWindowHandle -ne 0) {
@@ -2759,18 +2780,24 @@ Stop-Process -Force -Name mstsc -ErrorAction SilentlyContinue | Out-Null
 $running = $false
 }
 Start-Sleep -Milliseconds 100
+$timeout++
+if ($timeout -gt 100) {
+Stop-Process -Name mstsc -Force -ErrorAction SilentlyContinue
+$running = $false
+}
 } while ($running)
 }
 Start-Sleep -Seconds 1
 
 # windows 10 uninstall old snipping tool
 try {
-Start-Process "C:\Windows\System32\SnippingTool.exe" -ArgumentList "/Uninstall"
+Start-Process "C:\Windows\System32\SnippingTool.exe" -ArgumentList "/Uninstall" -ErrorAction SilentlyContinue
 } catch { }
 # silent window for uninstall old snipping tool
 $processExists = Get-Process -Name SnippingTool -ErrorAction SilentlyContinue
 if ($processExists) {
 $running = $true
+$timeout = 0
 do {
 $snipProcess = Get-Process -Name SnippingTool -ErrorAction SilentlyContinue
 if ($snipProcess -and $snipProcess.MainWindowHandle -ne 0) {
@@ -2778,6 +2805,11 @@ Stop-Process -Force -Name SnippingTool -ErrorAction SilentlyContinue | Out-Null
 $running = $false
 }
 Start-Sleep -Milliseconds 100
+$timeout++
+if ($timeout -gt 100) {
+Stop-Process -Name SnippingTool -Force -ErrorAction SilentlyContinue
+$running = $false
+}
 } while ($running)
 }
 Start-Sleep -Seconds 1
@@ -2802,7 +2834,7 @@ Start-Process "msiexec.exe" -ArgumentList "/x $guid /qn /norestart" -Wait -NoNew
 cmd /c "reg delete `"HKLM\SYSTEM\ControlSet001\Services\uhssvc`" /f >nul 2>&1"
 Unregister-ScheduledTask -TaskName PLUGScheduler -Confirm:$false -ErrorAction SilentlyContinue | Out-Null
 
-# remove startup apps
+# remove 3rd party startup apps
         ## taskmgr /0 /startup
         ## ms-settings:startupapps
 cmd /c "reg delete `"HKCU\Software\Microsoft\Windows\CurrentVersion\RunNotification`" /f >nul 2>&1"
@@ -2823,6 +2855,20 @@ Remove-Item -Recurse -Force "$env:AppData\Microsoft\Windows\Start Menu\Programs\
 Remove-Item -Recurse -Force "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp" -ErrorAction SilentlyContinue | Out-Null
 New-Item -Path "$env:AppData\Microsoft\Windows\Start Menu\Programs\Startup" -ItemType Directory -ErrorAction SilentlyContinue | Out-Null
 New-Item -Path "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp" -ItemType Directory -ErrorAction SilentlyContinue | Out-Null
+
+# remove 3rd party scheduled tasks
+        ## taskschd.msc
+		## regedit HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache\Tree
+		## C:\Windows\System32\Tasks
+$treePath = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\TaskCache\Tree"
+Get-ChildItem $treePath | Where-Object { $_.PSChildName -ne "Microsoft" } | ForEach-Object {
+Run-Trusted "Remove-Item '$($_.PSPath)' -Recurse -Force"
+}
+
+$tasksPath = "$env:SystemRoot\System32\Tasks"
+Get-ChildItem $tasksPath | Where-Object { $_.Name -ne "Microsoft" } | ForEach-Object {
+Remove-Item $_.FullName -Recurse -Force
+}
 
         # FUNCTION SHOW-MENU
         function Show-Menu {
@@ -3318,14 +3364,6 @@ Start-Sleep -Seconds 30
 Stop-Process -Name "RadeonSoftware" -Force -ErrorAction SilentlyContinue
 Start-Sleep -Seconds 2
 
-# disable ulps
-$subkeys = Get-ChildItem -Path "Registry::HKLM\SYSTEM\CurrentControlSet\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}" -Force -ErrorAction SilentlyContinue
-foreach($key in $subkeys){
-if ($key -notlike '*Configuration'){
-reg add "$key" /v "EnableUlps" /t REG_DWORD /d "0" /f | Out-Null
-}
-}
-
 # import amd software adrenalin edition settings
 # system
 # manual check for updates
@@ -3674,17 +3712,8 @@ cmd /c "reg add `"HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Flyout
 # disable fast boot
 cmd /c "reg add `"HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Power`" /v `"HiberbootEnabled`" /t REG_DWORD /d `"0`" /f >nul 2>&1"
 
-# unpark cpu cores
-cmd /c "reg add `"HKLM\SYSTEM\ControlSet001\Control\Power\PowerSettings\54533251-82be-4824-96c1-47b60b740d00\0cc5b647-c1df-4637-891a-dec35c318583`" /v `"ValueMax`" /t REG_DWORD /d `"100`" /f >nul 2>&1"
-
 # disable power throttling
 cmd /c "reg add `"HKLM\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling`" /v `"PowerThrottlingOff`" /t REG_DWORD /d `"1`" /f >nul 2>&1"
-
-# unhide hub selective suspend timeout
-cmd /c "reg add `"HKLM\System\ControlSet001\Control\Power\PowerSettings\2a737441-1930-4402-8d77-b2bebba308a3\0853a681-27c8-4100-a2fd-82013e970683`" /v `"Attributes`" /t REG_DWORD /d `"2`" /f >nul 2>&1"
-
-# unhide usb 3 link power management
-cmd /c "reg add `"HKLM\System\ControlSet001\Control\Power\PowerSettings\2a737441-1930-4402-8d77-b2bebba308a3\d4e98f31-5ffe-4ce1-be31-1b38b384c009`" /v `"Attributes`" /t REG_DWORD /d `"2`" /f >nul 2>&1"
 
 # modify desktop & laptop settings
 # hard disk turn off hard disk after 0%
@@ -3717,6 +3746,9 @@ powercfg /setacvalueindex 99999999-9999-9999-9999-999999999999 238c9fa8-0aad-41e
 powercfg /setdcvalueindex 99999999-9999-9999-9999-999999999999 238c9fa8-0aad-41ed-83f4-97be242c8f20 bd3b718a-0680-4d9d-8ab2-e1d2b4ac806d 000 2>$null
 
 # usb settings
+# unhide hub selective suspend timeout
+cmd /c "reg add `"HKLM\System\ControlSet001\Control\Power\PowerSettings\2a737441-1930-4402-8d77-b2bebba308a3\0853a681-27c8-4100-a2fd-82013e970683`" /v `"Attributes`" /t REG_DWORD /d `"0`" /f >nul 2>&1"
+
 # hub selective suspend timeout 0
 powercfg /setacvalueindex 99999999-9999-9999-9999-999999999999 2a737441-1930-4402-8d77-b2bebba308a3 0853a681-27c8-4100-a2fd-82013e970683 0x00000000 2>$null
 powercfg /setdcvalueindex 99999999-9999-9999-9999-999999999999 2a737441-1930-4402-8d77-b2bebba308a3 0853a681-27c8-4100-a2fd-82013e970683 0x00000000 2>$null
@@ -3724,6 +3756,9 @@ powercfg /setdcvalueindex 99999999-9999-9999-9999-999999999999 2a737441-1930-440
 # usb selective suspend setting disabled
 powercfg /setacvalueindex 99999999-9999-9999-9999-999999999999 2a737441-1930-4402-8d77-b2bebba308a3 48e6b7a6-50f5-4782-a5d4-53bb8f07e226 000 2>$null
 powercfg /setdcvalueindex 99999999-9999-9999-9999-999999999999 2a737441-1930-4402-8d77-b2bebba308a3 48e6b7a6-50f5-4782-a5d4-53bb8f07e226 000 2>$null
+
+# unhide usb 3 link power management
+cmd /c "reg add `"HKLM\System\ControlSet001\Control\Power\PowerSettings\2a737441-1930-4402-8d77-b2bebba308a3\d4e98f31-5ffe-4ce1-be31-1b38b384c009`" /v `"Attributes`" /t REG_DWORD /d `"0`" /f >nul 2>&1"
 
 # usb 3 link power management - off
 powercfg /setacvalueindex 99999999-9999-9999-9999-999999999999 2a737441-1930-4402-8d77-b2bebba308a3 d4e98f31-5ffe-4ce1-be31-1b38b384c009 000 2>$null
@@ -3749,6 +3784,22 @@ powercfg /setdcvalueindex 99999999-9999-9999-9999-999999999999 54533251-82be-482
 # maximum processor state 100%
 powercfg /setacvalueindex 99999999-9999-9999-9999-999999999999 54533251-82be-4824-96c1-47b60b740d00 bc5038f7-23e0-4960-96da-33abaf5935ec 0x00000064 2>$null
 powercfg /setdcvalueindex 99999999-9999-9999-9999-999999999999 54533251-82be-4824-96c1-47b60b740d00 bc5038f7-23e0-4960-96da-33abaf5935ec 0x00000064 2>$null
+
+# unhide processor performance core parking min cores
+cmd /c "reg add `"HKLM\System\ControlSet001\Control\Power\PowerSettings\54533251-82be-4824-96c1-47b60b740d00\0cc5b647-c1df-4637-891a-dec35c318583`" /v `"Attributes`" /t REG_DWORD /d `"0`" /f >nul 2>&1"
+
+# unpark cpu cores
+# processor performance core parking min cores 100%
+powercfg /setacvalueindex 99999999-9999-9999-9999-999999999999 54533251-82be-4824-96c1-47b60b740d00 0cc5b647-c1df-4637-891a-dec35c318583 0x00000064 2>$null
+powercfg /setdcvalueindex 99999999-9999-9999-9999-999999999999 54533251-82be-4824-96c1-47b60b740d00 0cc5b647-c1df-4637-891a-dec35c318583 0x00000064 2>$null
+
+# unhide processor performance core parking max cores
+cmd /c "reg add `"HKLM\System\ControlSet001\Control\Power\PowerSettings\54533251-82be-4824-96c1-47b60b740d00\ea062031-0e34-4ff1-9b6d-eb1059334028`" /v `"Attributes`" /t REG_DWORD /d `"0`" /f >nul 2>&1"
+
+# unpark cpu cores
+# processor performance core parking max cores 100%
+powercfg /setacvalueindex 99999999-9999-9999-9999-999999999999 54533251-82be-4824-96c1-47b60b740d00 ea062031-0e34-4ff1-9b6d-eb1059334028 0x00000064 2>$null
+powercfg /setdcvalueindex 99999999-9999-9999-9999-999999999999 54533251-82be-4824-96c1-47b60b740d00 ea062031-0e34-4ff1-9b6d-eb1059334028 0x00000064 2>$null
 
 # display
 # turn off display after 10 min - oled protection
@@ -4117,6 +4168,18 @@ $EditStepTwoPs1 = "$env:SystemRoot\Temp\StepTwo.ps1"
 
 # install runonce steptwo ps1 file to run in normal boot
 cmd /c "reg add `"HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce`" /v `"StepTwo`" /t REG_SZ /d `"powershell.exe -nop -ep bypass -WindowStyle Maximized -f $env:SystemRoot\Temp\StepTwo.ps1`" /f >nul 2>&1"
+
+# enable new nvme driver
+cmd /c "reg add `"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Policies\Microsoft\FeatureManagement\Overrides`" /v `"735209102`" /t REG_DWORD /d `"1`" /f >nul 2>&1"
+cmd /c "reg add `"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Policies\Microsoft\FeatureManagement\Overrides`" /v `"1853569164`" /t REG_DWORD /d `"1`" /f >nul 2>&1"
+cmd /c "reg add `"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Policies\Microsoft\FeatureManagement\Overrides`" /v `"156965516`" /t REG_DWORD /d `"1`" /f >nul 2>&1"
+
+# enable safe & safe network boot fix for new nvme driver
+cmd /c "reg add `"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SafeBoot\Network\{75416E63-5912-4DFA-AE8F-3EFACCAFFB14}`" /ve /d `"Storage disks`" /f >nul 2>&1"
+cmd /c "reg add `"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\SafeBoot\Minimal\{75416E63-5912-4DFA-AE8F-3EFACCAFFB14}`" /ve /d `"Storage disks`" /f >nul 2>&1"
+
+# allow password sign in
+cmd /c "reg add `"HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\PasswordLess\Device`" /v `"DevicePasswordLessBuildVersion`" /t REG_DWORD /d `"0`" /f >nul 2>&1"
 
 # disable open terminal by default
 cmd /c "reg add `"HKCU\Console\%%Startup`" /v `"DelegationConsole`" /t REG_SZ /d `"{B23D10C0-E52E-411E-9D5B-C09FDF709C7D}`" /f >nul 2>&1"
