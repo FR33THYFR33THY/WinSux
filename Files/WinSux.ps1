@@ -2582,6 +2582,13 @@ $stop = "backgroundTaskHost", "Copilot", "CrossDeviceResume", "GameBar", "Micros
 $stop | ForEach-Object { Stop-Process -Name $_ -Force -ErrorAction SilentlyContinue }
 Get-Process | Where-Object { $_.ProcessName -like "*edge*" } | Stop-Process -Force -ErrorAction SilentlyContinue
 
+#get og value to reset after edge removal
+$OGValue = Get-ItemPropertyValue 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Control Panel\DeviceRegion' -Name DeviceRegion -ErrorAction SilentlyContinue
+#create fake reg.exe
+Copy-Item (Get-Command reg.exe).Source .\reg1.exe -Force -EA 0
+#set device region to usa
+& .\reg1.exe add 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Control Panel\DeviceRegion' /v DeviceRegion /t REG_DWORD /d 244 /f 
+
 # find edgeupdate.exe
 $edgeupdate = @(); "LocalApplicationData", "ProgramFilesX86", "ProgramFiles" | ForEach-Object {
 $folder = [Environment]::GetFolderPath($_)
@@ -2647,6 +2654,9 @@ cmd /c "reg add `"$($regPath.Replace('HKLM:\', 'HKLM\'))`" /v Visibility /t REG_
 cmd /c "reg delete `"$($regPath.Replace('HKLM:\', 'HKLM\'))\Owners`" /va /f >nul 2>&1"
 dism /online /Remove-Package /PackageName:$EdgeLegacyPackage /quiet /norestart 2>$null | Out-Null
 }
+
+#cleanup fake reg.exe
+Remove-Item .\reg1.exe -ErrorAction SilentlyContinue
 
         Write-Host "REMOVE UWP APPS`n"
         ## ms-settings:appsfeatures
