@@ -2587,7 +2587,7 @@ $OGValue = Get-ItemPropertyValue 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersio
 #create fake reg.exe
 Copy-Item (Get-Command reg.exe).Source .\reg1.exe -Force -EA 0
 #set device region to usa
-& .\reg1.exe add 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Control Panel\DeviceRegion' /v DeviceRegion /t REG_DWORD /d 244 /f 
+& .\reg1.exe add 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Control Panel\DeviceRegion' /v DeviceRegion /t REG_DWORD /d 244 /f >$null
 
 # find edgeupdate.exe
 $edgeupdate = @(); "LocalApplicationData", "ProgramFilesX86", "ProgramFiles" | ForEach-Object {
@@ -2657,7 +2657,7 @@ dism /online /Remove-Package /PackageName:$EdgeLegacyPackage /quiet /norestart 2
 
 #reset value
 if ($OGValue) {
-& .\reg1.exe add 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Control Panel\DeviceRegion' /v DeviceRegion /t REG_DWORD /d $OGValue /f 
+& .\reg1.exe add 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Control Panel\DeviceRegion' /v DeviceRegion /t REG_DWORD /d $OGValue /f >$null
 }
 #cleanup fake reg.exe
 Remove-Item .\reg1.exe -ErrorAction SilentlyContinue
