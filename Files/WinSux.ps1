@@ -2655,6 +2655,10 @@ cmd /c "reg delete `"$($regPath.Replace('HKLM:\', 'HKLM\'))\Owners`" /va /f >nul
 dism /online /Remove-Package /PackageName:$EdgeLegacyPackage /quiet /norestart 2>$null | Out-Null
 }
 
+#reset value
+if ($OGValue) {
+& .\reg1.exe add 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Control Panel\DeviceRegion' /v DeviceRegion /t REG_DWORD /d $OGValue /f 
+}
 #cleanup fake reg.exe
 Remove-Item .\reg1.exe -ErrorAction SilentlyContinue
 
