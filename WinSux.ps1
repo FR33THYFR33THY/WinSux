@@ -177,16 +177,16 @@ cmd /c "sc delete `"$($service.Name)`" >nul 2>&1"
 # remove chrome scheduled tasks
 Get-ScheduledTask | Where-Object { $_.TaskName -like '*Google*' } | Unregister-ScheduledTask -Confirm:$false -ErrorAction SilentlyContinue
 
-        Write-Host "DIRECT X`n"
+        Write-Host "DIRECTX`n"
         ## explorer "https://www.microsoft.com/en-au/download/details.aspx?id=35"
 
-# download direct x
+# download directx
 Get-FileFromWeb -URL "https://github.com/FR33THYFR33THY/files/raw/refs/heads/main/Direct%20X.exe" -File "$env:SystemRoot\Temp\DirectX.exe"
 
 # extract directx with 7zip
 & "$env:SystemDrive\Program Files\7-Zip\7z.exe" x "$env:SystemRoot\Temp\DirectX.exe" -o"$env:SystemRoot\Temp\DirectX" -y | Out-Null
 
-# install direct x
+# install directx
 Start-Process -Wait "$env:SystemRoot\Temp\DirectX\DXSETUP.exe" -ArgumentList "/silent" -WindowStyle Hidden
 
 # create stepone ps1 file
