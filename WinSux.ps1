@@ -18,38 +18,11 @@
         # SCRIPT SILENT
         $progresspreference = 'silentlycontinue'
 
-        # FUNCTION FASTER DOWNLOADS
-        function Get-FileFromWeb {
-        param ([Parameter(Mandatory)][string]$URL, [Parameter(Mandatory)][string]$File)
-        try {
-        $Request = [System.Net.HttpWebRequest]::Create($URL)
-        $Response = $Request.GetResponse()
-        if ($Response.StatusCode -eq 401 -or $Response.StatusCode -eq 403 -or $Response.StatusCode -eq 404) { throw "401, 403 or 404 '$URL'." }
-        if ($File -match '^\.\\') { $File = Join-Path (Get-Location -PSProvider 'FileSystem') ($File -Split '^\.')[1] }
-        if ($File -and !(Split-Path $File)) { $File = Join-Path (Get-Location -PSProvider 'FileSystem') $File }
-        if ($File) { $FileDirectory = $([System.IO.Path]::GetDirectoryName($File)); if (!(Test-Path($FileDirectory))) { [System.IO.Directory]::CreateDirectory($FileDirectory) | Out-Null } }
-        [long]$FullSize = $Response.ContentLength
-        [byte[]]$Buffer = new-object byte[] 1048576
-        [long]$Total = [long]$Count = 0
-        $Reader = $Response.GetResponseStream()
-        $Writer = new-object System.IO.FileStream $File, 'Create'
-        do {
-        $Count = $Reader.Read($Buffer, 0, $Buffer.Length)
-        $Writer.Write($Buffer, 0, $Count)
-        $Total += $Count
-        } while ($Count -gt 0)
-        }
-        finally {
-        $Reader.Close()
-        $Writer.Close()
-        }
-        }
-
         Write-Host "7Z`n"
         ## explorer "https://www.7-zip.org"
 
 # download 7zip
-Get-FileFromWeb -URL "https://github.com/FR33THYFR33THY/files/raw/refs/heads/main/7%20Zip.exe" -File "$env:SystemRoot\Temp\7 Zip.exe"
+IWR "https://github.com/FR33THYFR33THY/files/raw/refs/heads/main/7%20Zip.exe" -OutFile "$env:SystemRoot\Temp\7 Zip.exe"
 
 # install 7zip
 Start-Process -Wait "$env:SystemRoot\Temp\7 Zip.exe" -ArgumentList "/S"
@@ -66,7 +39,7 @@ Remove-Item "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\7-Zip" -Recu
 		## explorer "https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170"
 
 # download c++
-Get-FileFromWeb -URL "https://github.com/FR33THYFR33THY/files/raw/refs/heads/main/C++.zip" -File "$env:SystemRoot\Temp\C++.zip"
+IWR "https://github.com/FR33THYFR33THY/files/raw/refs/heads/main/C++.zip" -OutFile "$env:SystemRoot\Temp\C++.zip"
 
 # extract c++ with 7zip
 & "$env:SystemDrive\Program Files\7-Zip\7z.exe" x "$env:SystemRoot\Temp\C++.zip" -o"$env:SystemRoot\Temp\C++" -y | Out-Null
@@ -89,7 +62,7 @@ Start-Process -Wait "$env:SystemRoot\Temp\C++\vcredist2015_2017_2019_2022_x64.ex
         ## explorer "https://www.wagnardsoft.com/display-driver-uninstaller-ddu"
 
 # download ddu
-Get-FileFromWeb -URL "https://github.com/FR33THYFR33THY/files/raw/refs/heads/main/DDU.exe" -File "$env:SystemRoot\Temp\DDU.exe"
+IWR "https://github.com/FR33THYFR33THY/files/raw/refs/heads/main/DDU.exe" -OutFile "$env:SystemRoot\Temp\DDU.exe"
 
 # extract ddu with 7zip
 & "$env:SystemDrive\Program Files\7-Zip\7z.exe" x "$env:SystemRoot\Temp\DDU.exe" -o"$env:SystemRoot\Temp\DDU" -y | Out-Null
@@ -145,7 +118,7 @@ cmd /c "reg add `"HKLM\Software\Microsoft\Windows\CurrentVersion\DriverSearching
         ## explorer "https://www.google.com/intl/en_us/chrome"
 
 # download google chrome
-Get-FileFromWeb -URL "https://github.com/FR33THYFR33THY/files/raw/refs/heads/main/Chrome.exe" -File "$env:SystemRoot\Temp\Chrome.exe"
+IWR "https://github.com/FR33THYFR33THY/files/raw/refs/heads/main/Chrome.exe" -OutFile "$env:SystemRoot\Temp\Chrome.exe"
 
 # install google chrome
 Start-Process -Wait "$env:SystemRoot\Temp\Chrome.exe" -ArgumentList "--silent --install" -WindowStyle Hidden
@@ -181,7 +154,7 @@ Get-ScheduledTask | Where-Object { $_.TaskName -like '*Google*' } | Unregister-S
         ## explorer "https://www.microsoft.com/en-au/download/details.aspx?id=35"
 
 # download directx
-Get-FileFromWeb -URL "https://github.com/FR33THYFR33THY/files/raw/refs/heads/main/Direct%20X.exe" -File "$env:SystemRoot\Temp\DirectX.exe"
+IWR "https://github.com/FR33THYFR33THY/files/raw/refs/heads/main/Direct%20X.exe" -OutFile "$env:SystemRoot\Temp\DirectX.exe"
 
 # extract directx with 7zip
 & "$env:SystemDrive\Program Files\7-Zip\7z.exe" x "$env:SystemRoot\Temp\DirectX.exe" -o"$env:SystemRoot\Temp\DirectX" -y | Out-Null
@@ -370,33 +343,6 @@ $StepTwoPs1 = @'
 
         # SCRIPT SILENT
         $progresspreference = 'silentlycontinue'
-		
-        # FUNCTION FASTER DOWNLOADS
-        function Get-FileFromWeb {
-        param ([Parameter(Mandatory)][string]$URL, [Parameter(Mandatory)][string]$File)
-        try {
-        $Request = [System.Net.HttpWebRequest]::Create($URL)
-        $Response = $Request.GetResponse()
-        if ($Response.StatusCode -eq 401 -or $Response.StatusCode -eq 403 -or $Response.StatusCode -eq 404) { throw "401, 403 or 404 '$URL'." }
-        if ($File -match '^\.\\') { $File = Join-Path (Get-Location -PSProvider 'FileSystem') ($File -Split '^\.')[1] }
-        if ($File -and !(Split-Path $File)) { $File = Join-Path (Get-Location -PSProvider 'FileSystem') $File }
-        if ($File) { $FileDirectory = $([System.IO.Path]::GetDirectoryName($File)); if (!(Test-Path($FileDirectory))) { [System.IO.Directory]::CreateDirectory($FileDirectory) | Out-Null } }
-        [long]$FullSize = $Response.ContentLength
-        [byte[]]$Buffer = new-object byte[] 1048576
-        [long]$Total = [long]$Count = 0
-        $Reader = $Response.GetResponseStream()
-        $Writer = new-object System.IO.FileStream $File, 'Create'
-        do {
-        $Count = $Reader.Read($Buffer, 0, $Buffer.Length)
-        $Writer.Write($Buffer, 0, $Count)
-        $Total += $Count
-        } while ($Count -gt 0)
-        }
-        finally {
-        $Reader.Close()
-        $Writer.Close()
-        }
-        }
 
         # FUNCTION RUN AS TRUSTED INSTALLER
         function Run-Trusted([String]$command) {
@@ -2860,7 +2806,7 @@ Remove-Item "$env:SystemRoot\Temp\NvidiaDriver\NvApp\NvConfigGenerator.dll" -For
 Start-Process "$env:SystemRoot\Temp\NvidiaDriver\setup.exe" -ArgumentList "-s -noreboot -noeula -clean" -Wait -NoNewWindow
 
 # download nvidia control panel
-Get-FileFromWeb -URL "https://github.com/FR33THYFR33THY/files/raw/refs/heads/main/NVIDIAControlPanel.Appx" -File "$env:SystemRoot\Temp\NVIDIAControlPanel.Appx"
+IWR "https://github.com/FR33THYFR33THY/files/raw/refs/heads/main/NVIDIAControlPanel.Appx" -OutFile "$env:SystemRoot\Temp\NVIDIAControlPanel.Appx"
 
 # install nvidia control panel
 Add-AppxPackage -Path "$env:SystemRoot\Temp\NVIDIAControlPanel.Appx"
@@ -2938,7 +2884,7 @@ cmd /c "reg add `"HKLM\SYSTEM\ControlSet001\Services\nvlddmkm\Parameters\FTS`" /
 cmd /c "reg add `"HKLM\SYSTEM\CurrentControlSet\Services\nvlddmkm\Parameters\FTS`" /v `"EnableGR535`" /t REG_DWORD /d `"0`" /f >nul 2>&1"
 
 # download inspector
-Get-FileFromWeb -URL "https://github.com/FR33THYFR33THY/files/raw/refs/heads/main/Inspector.exe" -File "$env:SystemRoot\Temp\Inspector.exe"
+IWR "https://github.com/FR33THYFR33THY/files/raw/refs/heads/main/Inspector.exe" -OutFile "$env:SystemRoot\Temp\Inspector.exe"
 
 # set config for inspector
 $nipfile = @'
