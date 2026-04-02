@@ -35,9 +35,6 @@
   		}
         }
 
-	    # REMOVE WINLOGON STEPONE PS1 FILE
-        cmd /c "reg add `"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon`" /v `"Userinit`" /t REG_SZ /d `"C:\WINDOWS\system32\userinit.exe,`" /f >nul 2>&1"
-
         Write-Host "DEFENDER SETTINGS`n"
         ## windowsdefender:
 		## windowsdefender://threatsettings
@@ -47,9 +44,6 @@
 		## windowsdefender://smartscreenpua
 		## windowsdefender://exploitprotection
 		## windowsdefender://coreisolation
-
-# start explorer
-Start-Process explorer
 
 $windowssecuritysettings = @(
 # virus & threat protection - manage settings
