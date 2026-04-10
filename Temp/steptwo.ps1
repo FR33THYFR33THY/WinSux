@@ -422,6 +422,9 @@ cmd /c "reg add `"HKLM\SYSTEM\ControlSet001\Services\CDPUserSvc`" /v `"Start`" /
 # import steptwo reg file
 Start-Process -Wait "regedit.exe" -ArgumentList "/S `"$env:SystemRoot\Temp\reg.reg`"" -WindowStyle Hidden
 
+# disable gamebarpresencewriter.exe
+Run-Trusted -command "reg add `"HKLM\SOFTWARE\Microsoft\WindowsRuntime\ActivatableClassId\Windows.Gaming.GameBar.PresenceServer.Internal.PresenceWriter`" /v `"ActivationType`" /t REG_DWORD /d `"0`" /f"
+
 # fix 2 for turn off privacy & security app permissions
 # stop cam service and remove the database
 Stop-Service -Name 'camsvc' -Force -ErrorAction SilentlyContinue
