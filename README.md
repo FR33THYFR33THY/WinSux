@@ -20,6 +20,9 @@ iwr https://github.com/FR33THYFR33THY/WinSux/raw/refs/heads/main/WinSux.ps1 -use
 
 [![WinSux Offline](https://img.youtube.com/vi/wHaI6EGdHpM/maxresdefault.jpg)](https://youtu.be/wHaI6EGdHpM)
 
+# (Why Comments Are Off), K0's Allegations & Talon Is MALWARE
+[![(Why Comments Are Off), K0's Allegations & Talon Is MALWARE](https://img.youtube.com/vi/UAOJ7-kRKdI/maxresdefault.jpg)](https://youtu.be/UAOJ7-kRKdI)
+
 # Software
 ```
 Get-FileHash "Name:" -Algorithm SHA256
