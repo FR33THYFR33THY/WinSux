@@ -1,6 +1,7 @@
 MIT License
 
-Copyright (c) 2026 FR33THY
+Copyright (c) FR33THY
+https://www.youtube.com/fr33thy
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,3 +20,88 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+Other
+
+Get-FileHash "Name:" -Algorithm SHA256
+https://www.virustotal.com/gui/home/search "SHA256:"
+
+Name: 7zip.exe
+Source: https://github.com/ip7z/7zip/releases/download/26.03/7z2603-x64.exe
+SHA256: 0859C524B8A63551848F0C246ABDDCB1D0B7B656B0FBFE879F8D85E61A9E6EDD
+Copyright: (c) Igor Pavlov
+
+Name: ddu.exe
+Source: https://download.wagnardsoft.com/DDU/DDU%20v18.1.5.7_setup.exe
+SHA256: 27E2644515ED30C7D7D64425869D55545F2EABDD2366E9444841F5CE67C86AEF
+Copyright: (c) Wagnardsoft
+
+Name: directx.exe
+Source: https://download.microsoft.com/download/8/4/A/84A35BF1-DAFE-4AE8-82AF-AD2AE20B6B14/directx_Jun2010_redist.exe
+SHA256: 053F76DCBB28802E23341B6A787E3B0791C0FA5C8D4D011B1044172DBF89C73B
+Copyright: (c) Microsoft Corporation
+
+Name: helium.exe
+Source: https://github.com/imputnet/helium-windows/releases/download/0.17.0.1/helium_0.17.0.1_x64-installer.exe
+SHA256: 2BB4CDA4AE8D22DEFBE47DDEF2D39AF2550F2E06AA9759F30B533BC2E93C1136
+Copyright: (c) imputnet
+
+Name: vcredist2005_x64.exe
+Source: https://download.microsoft.com/download/8/B/4/8B42259F-5D70-43F4-AC2E-4B208FD8D66A/vcredist_x64.exe
+SHA256: 4487570BD86E2E1AAC29DB2A1D0A91EB63361FCAAC570808EB327CD4E0E2240D
+Copyright: (c) Microsoft Corporation
+
+Name: vcredist2005_x86.exe
+Source: https://download.microsoft.com/download/8/B/4/8B42259F-5D70-43F4-AC2E-4B208FD8D66A/vcredist_x86.exe
+SHA256: 8648C5FC29C44B9112FE52F9A33F80E7FC42D10F3B5B42B2121542A13E44ADFD
+Copyright: (c) Microsoft Corporation
+
+Name: vcredist2008_x64.exe
+Source: https://download.microsoft.com/download/5/D/8/5D8C65CB-C849-4025-8E95-C3966CAFD8AE/vcredist_x64.exe
+SHA256: C5E273A4A16AB4D5471E91C7477719A2F45DDADB76C7F98A38FA5074A6838654
+Copyright: (c) Microsoft Corporation
+
+Name: vcredist2008_x86.exe
+Source: https://download.microsoft.com/download/5/D/8/5D8C65CB-C849-4025-8E95-C3966CAFD8AE/vcredist_x86.exe
+SHA256: 8742BCBF24EF328A72D2A27B693CC7071E38D3BB4B9B44DEC42AA3D2C8D61D92
+Copyright: (c) Microsoft Corporation
+
+Name: vcredist2010_x64.exe
+Source: https://download.microsoft.com/download/1/6/5/165255E7-1014-4D0A-B094-B6A430A6BFFC/vcredist_x64.exe
+SHA256: F3B7A76D84D23F91957AA18456A14B4E90609E4CE8194C5653384ED38DADA6F3
+Copyright: (c) Microsoft Corporation
+
+Name: vcredist2010_x86.exe
+Source: https://download.microsoft.com/download/1/6/5/165255E7-1014-4D0A-B094-B6A430A6BFFC/vcredist_x86.exe
+SHA256: 99DCE3C841CC6028560830F7866C9CE2928C98CF3256892EF8E6CF755147B0D8
+Copyright: (c) Microsoft Corporation
+
+Name: vcredist2012_x64.exe
+Source: https://download.microsoft.com/download/1/6/B/16B06F60-3B20-4FF2-B699-5E9B7962F9AE/VSU_4/vcredist_x64.exe
+SHA256: 681BE3E5BA9FD3DA02C09D7E565ADFA078640ED66A0D58583EFAD2C1E3CC4064
+Copyright: (c) Microsoft Corporation
+
+Name: vcredist2012_x86.exe
+Source: https://download.microsoft.com/download/1/6/B/16B06F60-3B20-4FF2-B699-5E9B7962F9AE/VSU_4/vcredist_x86.exe
+SHA256: B924AD8062EAF4E70437C8BE50FA612162795FF0839479546CE907FFA8D6E386
+Copyright: (c) Microsoft Corporation
+
+Name: vcredist2013_x64.exe
+Source: https://download.microsoft.com/download/2/e/6/2e61cfa4-993b-4dd4-91da-3737cd5cd6e3/vcredist_x64.exe
+SHA256: E554425243E3E8CA1CD5FE550DB41E6FA58A007C74FAD400274B128452F38FB8
+Copyright: (c) Microsoft Corporation
+
+Name: vcredist2013_x86.exe
+Source: https://download.microsoft.com/download/2/e/6/2e61cfa4-993b-4dd4-91da-3737cd5cd6e3/vcredist_x86.exe
+SHA256: A22895E55B26202EAE166838EDBE2EA6AAD00D7EA600C11F8A31EDE5CBCE2048
+Copyright: (c) Microsoft Corporation
+
+Name: vcredist2015_2017_2019_2022_x64.exe
+Source: https://aka.ms/vs/17/release/vc_redist.x64.exe
+SHA256: CC0FF0EB1DC3F5188AE6300FAEF32BF5BEEBA4BDD6E8E445A9184072096B713B
+Copyright: (c) Microsoft Corporation
+
+Name: vcredist2015_2017_2019_2022_x86.exe
+Source: https://aka.ms/vs/17/release/vc_redist.x86.exe
+SHA256: 0C09F2611660441084CE0DF425C51C11E147E6447963C3690F97E0B25C55ED64
+Copyright: (c) Microsoft Corporation
