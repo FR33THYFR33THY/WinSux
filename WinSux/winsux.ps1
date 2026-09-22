@@ -180,6 +180,37 @@ IWR "https://github.com/FR33THYFR33THY/WinSux/releases/download/Files/directx.ex
 # install directx
 Start-Process -Wait "$env:SystemRoot\Temp\directx\DXSETUP.exe" -ArgumentList "/silent" -WindowStyle Hidden
 
+        Write-Host "REMOVEUWP`n"
+        ## ms-settings:appsfeatures
+        ## powershell -noexit -command "get-appxpackage | select name | format-table -autosize"
+
+Get-AppXPackage -AllUsers | Where-Object {
+# breaks file explorer
+$_.Name -notlike '*CBS*' -and
+$_.Name -notlike '*Microsoft.AV1VideoExtension*' -and
+$_.Name -notlike '*Microsoft.AVCEncoderVideoExtension*' -and
+$_.Name -notlike '*Microsoft.HEIFImageExtension*' -and
+$_.Name -notlike '*Microsoft.HEVCVideoExtension*' -and
+$_.Name -notlike '*Microsoft.MPEG2VideoExtension*' -and
+$_.Name -notlike '*Microsoft.Paint*' -and
+$_.Name -notlike '*Microsoft.RawImageExtension*' -and
+# breaks windows server defender
+$_.Name -notlike '*Microsoft.SecHealthUI*' -and
+$_.Name -notlike '*Microsoft.VP9VideoExtensions*' -and
+$_.Name -notlike '*Microsoft.WebMediaExtensions*' -and
+$_.Name -notlike '*Microsoft.WebpImageExtension*' -and
+$_.Name -notlike '*Microsoft.Windows.Photos*' -and
+# breaks windows server task bar
+$_.Name -notlike '*Microsoft.Windows.ShellExperienceHost*' -and
+# breaks windows server start menu
+$_.Name -notlike '*Microsoft.Windows.StartMenuExperienceHost*' -and
+$_.Name -notlike '*Microsoft.WindowsNotepad*' -and
+$_.Name -notlike '*Microsoft.WindowsStore*' -and
+$_.Name -notlike '*NVIDIACorp.NVIDIAControlPanel*' -and
+# breaks windows server immersive control panel
+$_.Name -notlike '*windows.immersivecontrolpanel*'
+} | Remove-AppxPackage -ErrorAction SilentlyContinue
+
 # allow password sign in
 cmd /c "reg add `"HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\PasswordLess\Device`" /v `"DevicePasswordLessBuildVersion`" /t REG_DWORD /d `"0`" /f >nul 2>&1"
 
