@@ -11,13 +11,8 @@ Paste below code into an elevated Administrator PowerShell window
 iwr 'https://github.com/FR33THYFR33THY/WinSux/raw/refs/heads/main/WinSux/winsux.ps1' -useb | iex
 ```
 
-<br><br><br><br>
-
 # Graphics
 Graphics installer options from [Ultimate](<https://github.com/FR33THYFR33THY/Ultimate>)
-
-<br>
-
 - Install updated graphics driver
 ```
 iwr 'https://github.com/FR33THYFR33THY/Ultimate/raw/refs/heads/main/5%20Graphics/2%20Driver%20Updated%20Install.ps1' -useb | iex
@@ -30,3 +25,8 @@ iwr 'https://github.com/FR33THYFR33THY/Ultimate/raw/refs/heads/main/5%20Graphics
 ```
 iwr 'https://github.com/FR33THYFR33THY/Ultimate/raw/refs/heads/main/5%20Graphics/4%20Driver%20Debloat%20Install%20&%20Settings.ps1' -useb | iex
 ```
+
+# Donation 
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://botrix.live/p/fr33thy/tip)
+
+# Video
