@@ -29,4 +29,5 @@ iwr 'https://github.com/FR33THYFR33THY/Ultimate/raw/refs/heads/main/5%20Graphics
 # Donation 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://botrix.live/p/fr33thy/tip)
 
-# Video
+# [Video](<https://youtu.be/-eEuodGf3sE>)
+[![Video](https://img.youtube.com/vi/-eEuodGf3sE/maxresdefault.jpg)]([https://www.youtube.com/watch?v=-eEuodGf3sE](https://youtu.be/-eEuodGf3sE))
